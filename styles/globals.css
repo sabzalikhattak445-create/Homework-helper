@@ -1,0 +1,9 @@
+html, body, #root,#__next {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  background: linear-gradient(180deg,#071024 0%,#081322 100%);
+  color: #e6eef8;
+}
+
+button{ cursor:pointer; }
