@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AnimatedHeader from "./components/AnimatedHeader";
 
 // Subject logos component
@@ -38,7 +38,28 @@ export default function Home() {
   const [visibleAnswer, setVisibleAnswer] = useState("");
   const [gradeBarOpen, setGradeBarOpen] = useState(false);
 
-  // Enhanced typing animation: word-by-word remove & rewrite
+  // Star particles
+  const [stars, setStars] = useState([]);
+  useEffect(() => {
+    const newStars = Array.from({ length: 50 }, () => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 1,
+      speed: Math.random() * 0.1 + 0.05,
+    }));
+    setStars(newStars);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setStars((prev) =>
+        prev.map((s) => ({ ...s, y: s.y + s.speed > 100 ? 0 : s.y + s.speed }))
+      );
+    }, 50);
+    return () => clearInterval(interval);
+  }, [stars]);
+
+  // AI answer animation
   const animateAnswerLoop = (text) => {
     const words = text.split(/\s+/);
     let i = 0;
@@ -97,6 +118,22 @@ export default function Home() {
 
   return (
     <div className="container">
+      {/* Starry Background */}
+      <div className="stars">
+        {stars.map((s, i) => (
+          <div
+            key={i}
+            className="star"
+            style={{
+              left: `${s.x}%`,
+              top: `${s.y}%`,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+            }}
+          />
+        ))}
+      </div>
+
       <header>
         <AnimatedHeader />
         <p>Homework Helper — concise AI answers</p>
@@ -161,34 +198,58 @@ export default function Home() {
           max-width: 900px;
           margin: auto;
           min-height: 100vh;
-          background: linear-gradient(135deg, #0f1c3c, #081322);
           color: #e6eef8;
           font-family: Inter, system-ui, sans-serif;
           display: flex;
           flex-direction: column;
+          position: relative;
+          overflow: hidden;
         }
+
+        .stars {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          background: radial-gradient(circle, rgba(10,10,25,1) 0%, rgba(0,0,10,1) 100%);
+        }
+
+        .star {
+          position: absolute;
+          background: white;
+          border-radius: 50%;
+          opacity: 0.8;
+        }
+
         header {
           text-align: center;
           margin-bottom: 24px;
         }
+
         header p {
           color: #94a3b8;
         }
+
         .subjects {
           display: flex;
           gap: 16px;
           margin-bottom: 12px;
           flex-wrap: wrap;
         }
+
         .subjects div {
           cursor: pointer;
           opacity: 0.6;
           transition: all 0.3s;
         }
+
         .subjects div.active {
           opacity: 1;
           transform: scale(1.1);
         }
+
         textarea {
           width: 100%;
           border-radius: 12px;
@@ -200,12 +261,14 @@ export default function Home() {
           font-size: 16px;
           margin-bottom: 12px;
         }
+
         .controls {
           display: flex;
           justify-content: space-between;
           align-items: center;
           gap: 12px;
         }
+
         .grade-selector button {
           padding: 8px 12px;
           border-radius: 50px;
@@ -214,14 +277,17 @@ export default function Home() {
           color: #e6eef8;
           cursor: pointer;
         }
+
         .grade-selector input[type="range"] {
           width: 120px;
           margin-top: 6px;
         }
+
         button:disabled {
           opacity: 0.6;
           cursor: not-allowed;
         }
+
         .answer-box {
           margin-top: 18px;
           padding: 14px;
@@ -233,30 +299,27 @@ export default function Home() {
           align-items: center;
           flex-wrap: wrap;
         }
+
         .caret {
           animation: blink 800ms steps(2) infinite;
           margin-left: 4px;
         }
+
         footer {
           text-align: center;
           margin-top: 36px;
           color: #94a3b8;
           font-size: 14px;
         }
+
         .love {
           display: inline-block;
           color: #ff5c7c;
           animation: love 1.2s infinite;
         }
 
-        /* Animations */
-        @keyframes blink {
-          50% { opacity: 0; }
-        }
-        @keyframes love {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.2); }
-        }
+        @keyframes blink {50% { opacity: 0; }}
+        @keyframes love {0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
 
         /* Subject Logo animations */
         .logo {
@@ -271,55 +334,22 @@ export default function Home() {
           position: relative;
           color: #fff;
         }
-        .logo.math span {
-          font-size: 24px;
-          animation: rotateMath 2s linear infinite;
-        }
-        @keyframes rotateMath {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        .logo.science .orbit {
-          position: absolute;
-          width: 8px;
-          height: 8px;
-          background: #22d3ee;
-          border-radius: 50%;
-          top: 50%;
-          left: 50%;
-          transform-origin: -14px center;
-        }
-        .logo.science .orbit1 {
-          animation: orbit1 2s linear infinite;
-        }
-        .logo.science .orbit2 {
-          animation: orbit2 2.5s linear infinite;
-        }
-        @keyframes orbit1 {
-          0% { transform: rotate(0deg) translateX(14px) rotate(0deg); }
-          100% { transform: rotate(360deg) translateX(14px) rotate(-360deg); }
-        }
-        @keyframes orbit2 {
-          0% { transform: rotate(0deg) translateX(10px) rotate(0deg); }
-          100% { transform: rotate(360deg) translateX(10px) rotate(-360deg); }
-        }
-        .logo.science .atom-center {
-          width: 10px;
-          height: 10px;
-          background: #22d3ee;
-          border-radius: 50%;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-        .logo.english { animation: pulseABC 1.5s infinite; }
-        @keyframes pulseABC { 0%,100%{transform:scale(1);}50%{transform:scale(1.2);} }
-        .logo.history .page { width:6px;height:12px;background:#facc15;animation:flipBook 1s infinite;}
-        @keyframes flipBook { 0%,100%{transform:rotateY(0deg);}50%{transform:rotateY(180deg);} }
-        .logo.cs { animation: spinCS 1.5s linear infinite;}
+
+        .logo.math span {font-size:24px;animation: rotateMath 2s linear infinite;}
+        @keyframes rotateMath {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+        .logo.science .orbit {position:absolute;width:8px;height:8px;background:#22d3ee;border-radius:50%;top:50%;left:50%;transform-origin:-14px center;}
+        .logo.science .orbit1 {animation: orbit1 2s linear infinite;}
+        .logo.science .orbit2 {animation: orbit2 2.5s linear infinite;}
+        @keyframes orbit1 {0%{transform:rotate(0deg) translateX(14px) rotate(0deg);}100%{transform:rotate(360deg) translateX(14px) rotate(-360deg);}}
+        @keyframes orbit2 {0%{transform:rotate(0deg) translateX(10px) rotate(0deg);}100%{transform:rotate(360deg) translateX(10px) rotate(-360deg);}}
+        .logo.science .atom-center {width:10px;height:10px;background:#22d3ee;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+        .logo.english {animation: pulseABC 1.5s infinite;}
+        @keyframes pulseABC {0%,100%{transform:scale(1);}50%{transform:scale(1.2);}}
+        .logo.history .page {width:6px;height:12px;background:#facc15;animation:flipBook 1s infinite;}
+        @keyframes flipBook {0%,100%{transform:rotateY(0deg);}50%{transform:rotateY(180deg);}}
+        .logo.cs {animation: spinCS 1.5s linear infinite;}
         @keyframes spinCS {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
       `}</style>
     </div>
   );
-}
+  }
