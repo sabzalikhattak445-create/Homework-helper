@@ -1,7 +1,18 @@
 {
   "version": 2,
   "builds": [
-    { "src": "package.json", "use": "@vercel/next" }
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
   ],
-  "engines": { "node": "18.x" }
+  "env": {
+    "NEXT_GEMINI_API_KEY": "@next_gemini_api_key"
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/app/api/$1/route.js"
+    }
+  ]
 }
